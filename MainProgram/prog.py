@@ -4,13 +4,16 @@ from threading import Thread
 import time
 import RPi.GPIO as GPIO
 
-MIN_GREEN_LIGHT_TIME = 3
-MAX_GREEN_LIGHT_TIME = 12
+MIN_GREEN_LIGHT_TIME = 5
+MAX_GREEN_LIGHT_TIME = 30
 NUMBER_OF_ROADS = 3
 NUMBER_OF_LANES = 3
-
-GREENS = [17, 27, 22]
-REDS = [16, 20, 21]
+YELLOW_LIGHT_TIME = 2
+roundRobinInProcess = False
+GREENS = [17, 25, 16] 
+YELLOWS = [27, 8, 20] 
+REDS = [22, 7, 21]
+DANGERS = [13, 19, 26]
 
 """import picamera
 camera = picamera.PiCamera()
@@ -68,20 +71,53 @@ def greenLightsRoundRobin(greenLightTimesList):
         greenLightTime = greenLightTimesList[i]
         
         for j in range(NUMBER_OF_ROADS):
+            
             if i == j:
                 GPIO.output(GREENS[j], GPIO.HIGH)
+                GPIO.output(YELLOWS[j], GPIO.LOW)
                 GPIO.output(REDS[j], GPIO.LOW)
             else:
                 GPIO.output(GREENS[j], GPIO.LOW)
+                GPIO.output(YELLOWS[j], GPIO.LOW)
                 GPIO.output(REDS[j], GPIO.HIGH)
         print("Start : ", time.time())
         print(greenLightTime)
-        time.sleep(greenLightTime)
+        time.sleep(greenLightTime - YELLOW_LIGHT_TIME)
+        
+        for j in range(NUMBER_OF_ROADS):
+            if i == j:
+                GPIO.output(GREENS[j], GPIO.LOW)
+                GPIO.output(YELLOWS[j], GPIO.HIGH)
+                GPIO.output(REDS[j], GPIO.LOW)
+            else:
+                GPIO.output(GREENS[j], GPIO.LOW)
+                GPIO.output(YELLOWS[j], GPIO.LOW)
+                GPIO.output(REDS[j], GPIO.HIGH)
+        
+        time.sleep(YELLOW_LIGHT_TIME)
         print("End : ", time.time())
     for j in range(NUMBER_OF_ROADS):
         GPIO.output(GREENS[j], GPIO.LOW)
+        GPIO.output(YELLOWS[j], GPIO.LOW)
         GPIO.output(REDS[j], GPIO.LOW)
+        GPIO.output(DANGERS[j], GPIO.LOW)
 
+
+def trafficLightInfiniteLoop():
+    global roundRobinInProcess
+    while True:
+        if roundRobinInProcess == False:
+            roundRobinInProcess = True
+            trafficLightTimesInput = [ int(element) for element in input("Enter space separated traffic times : ").split(" ")]
+            greenLightTimesList = calculateTrafficLightTime(trafficLightTimesInput)
+            totalTime = sum(greenLightTimesList)
+            print(greenLightTimesList, totalTime)
+            showLightsThread = Thread(target = greenLightsRoundRobin, args = (greenLightTimesList, ) )
+            showLightsThread.start()
+            showLightsThread.join()
+            print("Threading Function Ends!")
+            roundRobinInProcess = False
+    
 
 def main():
 
@@ -93,15 +129,14 @@ def main():
     
     for i in range(NUMBER_OF_ROADS):
         GPIO.setup(GREENS[i], GPIO.OUT)
+        GPIO.setup(YELLOWS[i], GPIO.OUT)
         GPIO.setup(REDS[i], GPIO.OUT)
+        GPIO.setup(DANGERS[i], GPIO.OUT)
     
-    greenLightTimesList = calculateTrafficLightTime([25, 10, 15])
-    totalTime = sum(greenLightTimesList)
-    print(greenLightTimesList, totalTime)
-    thread = Thread(target = greenLightsRoundRobin, args = (greenLightTimesList, ) )
-    thread.start()
-    thread.join()
-    print("Threading Function Ends!")
+    trafficLightsInfiniteLoopThread = Thread(target = trafficLightInfiniteLoop)
+    trafficLightsInfiniteLoopThread.start()
+    trafficLightsInfiniteLoopThread.join()
+    
     
         
     # start = time.time()
