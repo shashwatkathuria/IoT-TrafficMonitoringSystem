@@ -5,7 +5,7 @@ import time
 import RPi.GPIO as GPIO
 
 MIN_GREEN_LIGHT_TIME = 5
-MAX_GREEN_LIGHT_TIME = 30
+MAX_GREEN_LIGHT_TIME = 30  
 NUMBER_OF_ROADS = 3
 NUMBER_OF_LANES = 3
 YELLOW_LIGHT_TIME = 2
@@ -15,7 +15,7 @@ YELLOWS = [27, 8, 20]
 REDS = [22, 7, 21]
 DANGERS = [13, 19, 26]
 
-"""import picamera
+import picamera
 camera = picamera.PiCamera()
 
 import cv2
@@ -27,27 +27,35 @@ def takePicture():
     camera.capture('snapshot.jpg')
     print("Just took the photo")
     
-def detectAndCount(showOutputImage = False):
-    print("Detecting cars now")
-    im = cv2.imread('./../RoadImages/cars_2.jpg')
+def detectIntrudersAndCountCars(showOutputImage = False):
+    print("Detecting cars and people now")
+    im = cv2.imread('./../PersonDetection/people_2.jpeg')
+    # im = cv2.imread('./../RoadImages/cars_1.jpeg')
     bbox, label, conf = cv.detect_common_objects(im)
-    print("Done detecting. Drawing contours now.")
+    print("Done detecting.")
     if showOutputImage == True:
+        print("Drawing contours now.")
         output_image = draw_bbox(im, bbox, label, conf)
         plt.imshow(output_image)
         plt.show()
     numberOfCars = label.count('car')
     numberOfPersons = label.count('person')
+    numberOfDogs = label.count('dog')
+    numberOfCats = label.count('cat')
+    print(label)
     print('Number of cars in the image is ', numberOfCars)
     print('Number of persons in the image is ', numberOfPersons)
     
-    calculateTrafficLightTime([numberOfCars, 10, 15]) # Number Of Roads = 3
     if numberOfPersons >= 1:
         # Find the half in which the person is
         # Danger Light on in those lanes
-        pass
-"""
-
+        for j in range(NUMBER_OF_ROADS):
+            GPIO.output(DANGERS[j], GPIO.HIGH)
+        print("PEOPLE DETECTED ON ROAD!! STOP DRIVING IMMEDIATELY!!")
+    elif numberOfPersons == 0:
+        for j in range(NUMBER_OF_ROADS):
+            GPIO.output(DANGERS[j], GPIO.LOW)
+            
 def calculateTrafficLightTime(roadCarsCountList):
     minCount = min(roadCarsCountList)
     extraAllowance = MAX_GREEN_LIGHT_TIME - MIN_GREEN_LIGHT_TIME
@@ -108,7 +116,7 @@ def trafficLightInfiniteLoop():
     while True:
         if roundRobinInProcess == False:
             roundRobinInProcess = True
-            trafficLightTimesInput = [ int(element) for element in input("Enter space separated traffic times : ").split(" ")]
+            trafficLightTimesInput = [ int(element) for element in input("Enter space separated road traffic counts : ").split(" ")]
             greenLightTimesList = calculateTrafficLightTime(trafficLightTimesInput)
             totalTime = sum(greenLightTimesList)
             print(greenLightTimesList, totalTime)
@@ -132,10 +140,33 @@ def main():
         GPIO.setup(YELLOWS[i], GPIO.OUT)
         GPIO.setup(REDS[i], GPIO.OUT)
         GPIO.setup(DANGERS[i], GPIO.OUT)
+        
+    for j in range(NUMBER_OF_ROADS):
+        GPIO.output(GREENS[j], GPIO.LOW)
+        GPIO.output(YELLOWS[j], GPIO.LOW)
+        GPIO.output(REDS[j], GPIO.LOW)
+        GPIO.output(DANGERS[j], GPIO.LOW)
     
     trafficLightsInfiniteLoopThread = Thread(target = trafficLightInfiniteLoop)
     trafficLightsInfiniteLoopThread.start()
+    """for i in range(5):
+        print("Hello")
+        time.sleep(1)"""
+    
+    detectingAndCountingInfiniteLoopThread = Thread(target = detectIntrudersAndCountCars, args = (True,))
+    detectingAndCountingInfiniteLoopThread.start()
+    
+    # When we want to stop thread from executing
     trafficLightsInfiniteLoopThread.join()
+    detectingAndCountingInfiniteLoopThread.join()
+    
+    for j in range(NUMBER_OF_ROADS):
+        GPIO.output(GREENS[j], GPIO.LOW)
+        GPIO.output(YELLOWS[j], GPIO.LOW)
+        GPIO.output(REDS[j], GPIO.LOW)
+        GPIO.output(DANGERS[j], GPIO.LOW)
+    
+    
     
     
         
