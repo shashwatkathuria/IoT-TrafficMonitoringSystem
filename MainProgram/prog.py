@@ -29,7 +29,7 @@ def takePicture():
     
 def detectIntrudersAndCountCars(showOutputImage = False):
     print("Detecting cars and people now")
-    im = cv2.imread('./../PersonDetection/people_2.jpeg')
+    im = cv2.imread('./../Basics/PersonDetection/people_2.jpeg')
     # im = cv2.imread('./../RoadImages/cars_1.jpeg')
     bbox, label, conf = cv.detect_common_objects(im)
     print("Done detecting.")
