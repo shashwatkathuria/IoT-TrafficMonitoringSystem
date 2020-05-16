@@ -10,13 +10,13 @@ NUMBER_OF_ROADS = 3
 NUMBER_OF_LANES = 3
 YELLOW_LIGHT_TIME = 2
 roundRobinInProcess = False
-GREENS = [17, 25, 16] 
-YELLOWS = [27, 8, 20] 
-REDS = [22, 7, 21]
+GREENS = [17, 18, 16] 
+YELLOWS = [27, 23, 20] 
+REDS = [22, 24, 21]
 DANGERS = [13, 19, 26]
 
-import picamera
-camera = picamera.PiCamera()
+# import picamera
+# camera = picamera.PiCamera()
 
 import cv2
 import matplotlib.pyplot as plt
