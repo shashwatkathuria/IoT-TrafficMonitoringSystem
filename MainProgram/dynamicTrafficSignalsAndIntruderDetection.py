@@ -12,7 +12,7 @@ MIN_GREEN_LIGHT_TIME = 5
 MAX_GREEN_LIGHT_TIME = 30
 NUMBER_OF_ROADS = 3
 YELLOW_LIGHT_TIME = 2
-roundRobinInProcess = False
+# roundRobinInProcess = False
 GREENS = [17, 18, 16]
 YELLOWS = [27, 23, 20]
 REDS = [22, 24, 21]
@@ -50,11 +50,6 @@ def main():
     trafficLightsInfiniteLoopThread = Thread(target = trafficLightInfiniteLoop)
     trafficLightsInfiniteLoopThread.start()
 
-    # Starting detectingAndCountingInfiniteLoopThread as a thread
-    # Always running
-    # detectingAndCountingInfiniteLoopThread = Thread(target = detectIntrudersAndCountCars, args = (True,))
-    # detectingAndCountingInfiniteLoopThread.start()
-
     # Joining threads
     trafficLightsInfiniteLoopThread.join()
     # detectingAndCountingInfiniteLoopThread.join()
@@ -66,44 +61,13 @@ def main():
         GPIO.output(REDS[j], GPIO.LOW)
         GPIO.output(DANGERS[j], GPIO.LOW)
 
-# def detectIntrudersAndCountCars(showOutputImage = False):
-#     """Function to report counts of cars and detect intruders on the road."""
-# 
-#     print("Detecting cars and people now")
-#     im = cv2.imread('./../Basics/PersonDetection/people_2.jpeg')
-#     bbox, label, conf = cv.detect_common_objects(im)
-#     print("Done detecting.")
-#     if showOutputImage == True:
-#         print("Drawing contours now.")
-#         output_image = draw_bbox(im, bbox, label, conf)
-#         plt.imshow(output_image)
-#         plt.show()
-#     numberOfCars = label.count('car')
-#     numberOfPersons = label.count('person')
-#     numberOfDogs = label.count('dog')
-#     numberOfCats = label.count('cat')
-#     print(label)
-#     print('Number of cars in the image is ', numberOfCars)
-#     print('Number of persons in the image is ', numberOfPersons)
-# 
-#     if numberOfPersons >= 1 or numberOfDogs >= 1 or numberOfCats >= 1:
-#         for j in range(NUMBER_OF_ROADS):
-#             GPIO.output(DANGERS[j], GPIO.HIGH)
-#         print("PEOPLE DETECTED ON ROAD!! STOP DRIVING IMMEDIATELY!!")
-#     else:
-#         for j in range(NUMBER_OF_ROADS):
-#             GPIO.output(DANGERS[j], GPIO.LOW)
-
 def trafficLightInfiniteLoop():
-    global roundRobinInProcess, globalI
-    
+    global globalI
     
     nameOfFile = f'./../Basics/RoadImages/r{globalI}.png'
     im = cv2.imread(nameOfFile)
     bbox, label, conf = cv.detect_common_objects(im)
     while True:
-        if roundRobinInProcess == False:
-            roundRobinInProcess = True
 #             output_image = draw_bbox(im, bbox, label, conf)
 #             plt.imshow(output_image)
 #             plt.show()
@@ -127,7 +91,6 @@ def trafficLightInfiniteLoop():
             totalTime = sum(greenLightTimesList)
             for i in range(NUMBER_OF_ROADS):
                 print(f"Traffic count on road number {i + 1}: {trafficLightTimesInput[i]}\t Time Allocated: {greenLightTimesList[i]} sec")
-#             print(trafficLightTimesInput, greenLightTimesList, totalTime)
             showLightsThread = Thread(target = greenLightsRoundRobin, args = (greenLightTimesList, ) )
             showLightsThread.start()
             globalI += 1
@@ -135,13 +98,11 @@ def trafficLightInfiniteLoop():
                 return
             nameOfFile = f'./../Basics/RoadImages/r{globalI}.png'
 #             nameOfFile = f'./../Basics/RoadImages/p1.jpeg'
+#             print(nameOfFile)
             im = cv2.imread(nameOfFile)
             bbox, label, conf = cv.detect_common_objects(im)
             showLightsThread.join()
 #             print("Show Traffic Lights Threading Function Joins Main Thread!")
-            roundRobinInProcess = False
-            
-
 
 def calculateTrafficLightTime(roadCarsCountList):
     """Function to give appropriate green light times for the roads."""
