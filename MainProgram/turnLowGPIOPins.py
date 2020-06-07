@@ -1,9 +1,9 @@
 import RPi.GPIO as GPIO
 
 NUMBER_OF_ROADS = 3
-GREENS = [17, 25, 16] 
-YELLOWS = [27, 8, 20] 
-REDS = [22, 7, 21]
+GREENS = [17, 18, 16]
+YELLOWS = [27, 23, 20]
+REDS = [22, 24, 21]
 DANGERS = [13, 19, 26]
 
 GPIO.setwarnings(False)
