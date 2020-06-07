@@ -154,7 +154,7 @@ class SpectrumAnalyzer:
         """Function to get the audio input data in required format."""
 
         # Reading audio input data and converting to required format
-        audioInputData = self.stream.read(self.CHUNK)
+        audioInputData = self.stream.read(self.CHUNK, exception_on_overflow = False)
         audioInputData = np.fromstring(audioInputData, np.float32)
 
         # Returning audio input data
