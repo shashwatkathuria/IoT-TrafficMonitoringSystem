@@ -68,16 +68,16 @@ def analyzeGunShotAndCaptureImages(spectrumArray):
         # Conditions for gunshot
         if middleTriangleCount > 15 and topTriangleCount > 5:
             camera.capture(nameOfFile)
-            print("Gunshot detected")
+            print("Gunshot detected, image captured at", nameOfFile)
         elif topTriangleCount > 5:
             camera.capture(nameOfFile)
-            print("Gunshot possibility")
+            print("Gunshot possibility, image captured at", nameOfFile)
         elif middleTriangleCount > 20:
             camera.capture(nameOfFile)
-            print("Gunshot possibility")
+            print("Gunshot possibility, image captured at", nameOfFile)
         elif middleTriangleCount > 10 and topTriangleCount >= 2:
             camera.capture(nameOfFile)
-            print("Gunshot possibility")
+            print("Gunshot possibility, image captured at", nameOfFile)
 
     # Returning relative percentage values to plot
     return spectrumArrayCopy
