@@ -67,6 +67,8 @@ def trafficLightInfiniteLoop():
     
     # Reading first image
     nameOfFile = f'./../Basics/RoadImages/r{globalI}.png'
+    # Uncomment below line to check intruder detection on road
+    # nameOfFile = f'./../Basics/RoadImages/p1.jpeg'
     im = cv2.imread(nameOfFile)
     # Detecting objects in the first image
     bbox, label, conf = cv.detect_common_objects(im)
@@ -75,9 +77,9 @@ def trafficLightInfiniteLoop():
     while True:
 #             Lines commented, used for debugging and drawing
 #             detected objects on plt
-#             output_image = draw_bbox(im, bbox, label, conf)
-#             plt.imshow(output_image)
-#             plt.show()
+            output_image = draw_bbox(im, bbox, label, conf)
+            plt.imshow(output_image)
+            plt.show()
 #             print("The global I is ", globalI)
             print("--------------------")
             # Getting the count of respective category
